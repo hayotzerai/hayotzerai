@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ContactForm } from "@/components/ui/contact-form"
+import {OtpVerificationForm} from "@/components/ui/otp-verification-form"
+import { IdLoginDialog } from "@/components/ui/id-login-dialog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Brain,
@@ -21,7 +24,10 @@ import {
 import { useState } from "react"
 
 export default function HomePage() {
-  const [language, setLanguage] = useState<"en" | "he">("en")
+  const [showRegstriy, setShowRegstriy] = useState(false);
+  const [showConnect, setShowConnect] = useState(false);
+  const [showWaitConnect, setShowWaitConnect] = useState(false);
+  const [language, setLanguage] = useState<"en" | "he">("he")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isHebrew = language === "he"
@@ -30,6 +36,8 @@ export default function HomePage() {
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "he" : "en")
   }
+
+
 
   const content = {
     en: {
@@ -390,7 +398,12 @@ export default function HomePage() {
   const t = content[language]
 
   return (
+  
     <div className={`flex flex-col min-h-screen`} dir={direction}>
+       
+   
+
+
       {/* Navigation */}
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-6 py-3">
@@ -429,10 +442,10 @@ export default function HomePage() {
               <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-sm">
                 {t.languageSwitch}
               </Button>
-              <Button variant="outline" className="hidden md:flex">
+              <Button name="login" variant="outline" className="hidden md:flex" onClick={() => setShowConnect(s => !s)}>
                 {t.nav.login}
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">{t.nav.signup}</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setShowRegstriy(s => !s)}>{t.nav.signup} </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -443,7 +456,6 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-
           {/* Mobile menu */}
           {mobileMenuOpen && (
             <div className="md:hidden mt-3 py-4 border-t border-gray-100">
@@ -484,10 +496,10 @@ export default function HomePage() {
                   {t.nav.pricing}
                 </Link>
                 <div className="pt-2 flex flex-col gap-2">
-                  <Button variant="outline" className="w-full justify-center">
+                  <Button variant="outline" className="w-full justify-center" >
                     {t.nav.login}
                   </Button>
-                  <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700">{t.nav.signup}</Button>
+                  <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700" onClick={() => setShowRegstriy(true)}>{t.nav.signup}</Button>
                 </div>
               </nav>
             </div>
@@ -495,6 +507,7 @@ export default function HomePage() {
         </div>
       </header>
 
+  
       {/* Hero Section */}
       <section className="w-full pt-24 pb-12 md:pt-32 md:pb-24 lg:pt-40 lg:pb-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-white -z-10"></div>
@@ -1076,7 +1089,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
+ 
+   
       {/* Footer */}
       <footer className="w-full py-12 bg-gray-900 text-gray-300">
         <div className="container px-4 md:px-6 mx-auto">
@@ -1123,7 +1137,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-white">{t.footer.product}</h3>
+              <h3 className="text-lg font-medium text-white">{t.footer.productproduct}</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -1203,6 +1217,31 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Connet & Registry*/}
+      <div className="relative z-50">
+      {showRegstriy && (
+       <div className="fixed top-0 wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+        <div className="wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center w-full"> {showRegstriy && ( <ContactForm   languageType={language} onClose={() => setShowRegstriy(false)} showCloseButton={true} />)}</div>
+        </div>
+      )}
+
+
+      {showConnect && (
+        
+        <div className="wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">{showConnect && ( <IdLoginDialog languageType={language}/>)}</div>
+      
+      )}
+
+
+      {showWaitConnect && (
+        <div className="fixed top-0 wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+           <div> {showWaitConnect && ( <OtpVerificationForm languageType={language}/>)}</div>
+      </div>
+      )}
+      </div>
+
+
     </div>
   )
 }
