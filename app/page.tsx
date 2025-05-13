@@ -1,10 +1,9 @@
 "use client"
-
+import { redirect } from 'next/navigation'
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ContactForm } from "@/components/ui/contact-form"
 import {OtpVerificationForm} from "@/components/ui/otp-verification-form"
-import { IdLoginDialog } from "@/components/ui/id-login-dialog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Brain,
@@ -442,10 +441,10 @@ export default function HomePage() {
               <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-sm">
                 {t.languageSwitch}
               </Button>
-              <Button name="login" variant="outline" className="hidden md:flex" onClick={() => setShowConnect(s => !s)}>
+              <Button name="login" variant="outline" className="hidden md:flex" onClick={() => redirect(`/signin?language=${language}`)}>
                 {t.nav.login}
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setShowRegstriy(s => !s)}>{t.nav.signup} </Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => redirect(`/signup?language=${language}`)}>{t.nav.signup} </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -499,7 +498,7 @@ export default function HomePage() {
                   <Button variant="outline" className="w-full justify-center" >
                     {t.nav.login}
                   </Button>
-                  <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700" onClick={() => setShowRegstriy(true)}>{t.nav.signup}</Button>
+                  <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700" onClick={() => redirect(`/signup?language='${language}`)}>{t.nav.signup}</Button>
                 </div>
               </nav>
             </div>
@@ -1217,21 +1216,20 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
+      <div>
+     
+      </div>
       {/* Connet & Registry*/}
       <div className="relative z-50">
       {showRegstriy && (
+    
        <div className="fixed top-0 wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
         <div className="wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center w-full"> {showRegstriy && ( <ContactForm   languageType={language} onClose={() => setShowRegstriy(false)} showCloseButton={true} />)}</div>
         </div>
       )}
 
 
-      {showConnect && (
-        
-        <div className="wfixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">{showConnect && ( <IdLoginDialog languageType={language}/>)}</div>
-      
-      )}
+   
 
 
       {showWaitConnect && (

@@ -1,47 +1,78 @@
-import React, { useState } from "react";
-import ChildComponent from "./ChildComponent";
+const sendPostRequest = async () => {
+  const response = await fetch('/api/example', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ key: 'value' }),
+  });
 
-const ParentComponent: React.FC = () => {
-  const [isChildOpen, setIsChildOpen] = useState(false);
-
-  const openChild = () => setIsChildOpen(true);
-  const closeChild = () => setIsChildOpen(false);
-
-  return (
-    <div>
-      <button onClick={openChild} className="bg-blue-500 text-white px-4 py-2 rounded">
-        Open Child Component
-      </button>
-
-      {isChildOpen && <ChildComponent closeChild={closeChild} />}
-    </div>
-  );
+  const data = await response.json();
+  console.log(data);
 };
 
-export default ParentComponent;
+sendPostRequest();
 
 
-import React, { useState } from "react";
-import ChildComponent from "./ChildComponent";
+import { useState } from 'react';
 
-const ParentComponent: React.FC = () => {
-  const [isChildOpen, setIsChildOpen] = useState(false);
+export default function FormComponent() {
+  const [data, setData] = useState(null);
 
-  const handleCloseFromChild = () => {
-    console.log("Child requested to close!");
-    setIsChildOpen(false);
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevents default form submission
+
+    const response = await fetch('/api/example', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key: 'value' }),
+    });
+
+    const result = await response.json();
+    setData(result); // Update state with fetched data
   };
 
   return (
     <div>
-      <button onClick={() => setIsChildOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
-        Open Child Component
-      </button>
+      <form onSubmit={handleSubmit}>
+        <button type="submit">Submit</button>
+      </form>
 
-      {isChildOpen && <ChildComponent closeParent={handleCloseFromChild} />}
+      {data && <p>Received Data: {JSON.stringify(data)}</p>}
     </div>
   );
-};
+}
 
-export default ParentComponent;
+import { useState } from 'react';
+
+export default function FormComponent() {
+  const [data, setData] = useState(null);
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    fetch('/api/example', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key: 'value' }),
+    })
+      .then((response) => response.json())
+      .then((result) => setData(result))
+      .catch((error) => console.error('Error:', error));
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <button type="submit">Submit</button>
+      </form>
+
+      {data && <p>Received Data: {JSON.stringify(data)}</p>}
+    </div>
+  );
+}
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { redirect } from 'next/navigation'
+import { use, useState } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { CheckCircle, User, Mail, Phone, IceCream, IdCard , X} from "lucide-react"
+import { json } from "stream/consumers"
 
 // Form validation schema
 const formSchema = z.object({
@@ -17,7 +19,8 @@ const formSchema = z.object({
   phone: z.string().regex(/^\+?[0-9]{10,15}$/, {
     message: "Please enter a valid phone number",
   }),
-  idNumber: z.string().min(1, { message: "ID Number is required" }),
+ // id: z.number().lte(6, { message: "ID Number is required" }),
+ id: z.coerce.number().gte(9, { message: "ID Number is required min 9 numbers " }),
 })
 
 
@@ -34,6 +37,8 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
   const [isSubmitted, setIsSubmitted] = useState(false)
   //const [language, setLanguage] = useState<"en" | "he">("he")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isError,SetIsError] = useState(false);
+  const [errorMessage,SetErrorMessage] = useState("No Error");
 
   //setLanguage(languageType);
   const language = languageType === "he" ? "he" : "en"
@@ -52,6 +57,9 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
       thankYouTitle: "תודה!",
       thankYouMessage: "הפרטים שלך נשלחו בהצלחה.",
       footerMessage: "כל הפרטים שלך נשמרים בסודיות",
+      afterSubmitButton:"לחץ להתחברות",
+      afterSubmitButtonError:"לחץ לנסות שוב"
+
     },
     en:{
       title: "Contact Information",
@@ -64,6 +72,9 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
       thankYouTitle: "Thank You!",
       thankYouMessage: "Your information has been submitted successfully.",
       footerMessage: "All your information is kept confidential",
+      afterSubmitButton: "Click to LogIn",
+      afterSubmitButtonError: "Click to try again"
+
     }
   }
   const t = content[language];
@@ -75,16 +86,45 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
       name: "",
       email: "",
       phone: "",
-      idNumber: "",
+      id: 0,
     },
   })
  
 
-  function onSubmit(data: FormValues) {
-    console.log("Form submitted:", data)
-    setIsSubmitted(true)
-    // In a real app, you would send this data to your backend
+  const onSubmit = async (data: FormValues) => {
+
+  
+     const results = await sendPostRequest(data);
+     if(results[0]["status"] === '0'){
+       SetErrorMessage(results[0]["description"])
+       SetIsError(true);
+     }
+     setIsSubmitted(true)
+   
   }
+
+  const afterSubmitForm = async() =>{
+      if(isError){
+        setIsSubmitted(false);
+      }else{
+        
+        redirect(`/signin?language=${language}`);
+        setIsSubmitted(false);
+      }
+  }
+
+  const sendPostRequest = async (data) => {
+    const response = await fetch('http://localhost:1337/api/customers/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  
+    return await response.json();
+    
+  };
 
   if (isSubmitted) {
     return (
@@ -101,9 +141,9 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
         <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
           <CheckCircle className="h-16 w-16 text-blue-500 mb-4" />
           <h2 className="text-2xl font-bold text-blue-700 mb-2">{t.thankYouTitle}</h2>
-          <p className="text-center text-blue-600">{t.thankYouMessage}.</p>
-          <Button className="mt-6 bg-blue-500 hover:bg-blue-600" onClick={() => setIsSubmitted(false)}>
-            Submit Another Response
+          <p className="text-center text-blue-600">{(isError)?errorMessage:t.thankYouMessage}.</p>
+          <Button className="mt-6 bg-blue-500 hover:bg-blue-600" onClick={afterSubmitForm}>
+          {(isError)?t.afterSubmitButtonError:t.afterSubmitButton}
           </Button>
         </CardContent>
       </Card>
@@ -177,7 +217,7 @@ export function ContactForm({languageType,onClose, showCloseButton = false }: Co
             />
             <FormField
               control={form.control}
-              name="idNumber"
+              name="id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-blue-700 font-medium">
